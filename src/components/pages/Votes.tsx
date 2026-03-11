@@ -21,7 +21,7 @@ import Paper from "@mui/material/Paper";
 import { useBallotStore } from "../../hooks/useBallotStore.ts";
 import { usePositionsStore } from "../../hooks/usePositionsStore.ts";
 import { useHotkeys } from "react-hotkeys-hook";
-import { useParams, useNavigate } from 'react-router-dom';  // <-- added
+import { useParams, useNavigate } from 'react-router-dom';  
 
 export interface BallotPositionProps {
     position: Position,
@@ -143,8 +143,8 @@ export function BallotPosition({
 }
 
 export function Votes() {
-    const { voteIndex } = useParams();                // <-- added: get vote index from URL
-    const navigate = useNavigate();                    // <-- added
+    const { voteIndex } = useParams();                
+    const navigate = useNavigate();               
 
     const {
         ballots,
@@ -158,10 +158,10 @@ export function Votes() {
     const [focusPosition, setFocusPosition] = useState<Position | null>(null)
     const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-    // <-- added: sync URL param to store
+   
     useEffect(() => {
         if (!voteIndex) {
-            // No voteIndex in URL -> go to first ballot
+          
             if (currentBallotIndex !== 0) {
                 setVoteIndex(0);
             }
@@ -170,19 +170,19 @@ export function Votes() {
 
         const urlIndex = parseInt(voteIndex, 10);
         if (isNaN(urlIndex) || urlIndex < 1) {
-            // Invalid index -> go to first ballot and update URL
+           
             navigate('/votes/1', { replace: true });
             return;
         }
 
-        // Clamp to valid range
+       
         const maxIndex = ballots.length;
         const validIndex = Math.min(Math.max(urlIndex, 1), maxIndex);
         if (validIndex !== urlIndex) {
-            // Out of range -> replace with valid index
+           
             navigate(`/votes/${validIndex}`, { replace: true });
         } else {
-            // Valid index, update store if needed (convert to 0‑based)
+         
             const newStoreIndex = validIndex - 1;
             if (newStoreIndex !== currentBallotIndex) {
                 setVoteIndex(newStoreIndex);
@@ -190,7 +190,7 @@ export function Votes() {
         }
     }, [voteIndex, ballots.length, currentBallotIndex, navigate, setVoteIndex]);
 
-    // <-- added: update URL when store changes (e.g., after removal)
+   
     useEffect(() => {
         const expectedUrlIndex = currentBallotIndex + 1;
         const currentUrlIndex = voteIndex ? parseInt(voteIndex, 10) : null;
@@ -215,9 +215,9 @@ export function Votes() {
     useEffect(() => {
         console.log("currentBallotIndex updated");
 
-        // eslint-disable-next-line react-hooks/set-state-in-effect
+      
         setFocusPosition(prev => {
-            // Only update if the current focus is not already the first position
+         
             if (prev?.key === positions[0]?.key) return prev;
             return positions[0];
         });
@@ -247,7 +247,7 @@ export function Votes() {
         setBallotVote(currentBallotIndex, position, person, checked)
     }
 
-    // <-- modified: use navigation instead of direct store update
+  
     function handleVoteChange(_event: ChangeEvent<unknown>, pageNumber: number) {
         navigate(`/votes/${pageNumber}`);
     }
@@ -256,10 +256,10 @@ export function Votes() {
         setIsDialogOpen(false)
     }
 
-    // <-- modified: after removal, navigate to updated index
+   
     function remove() {
         removeBallot(currentVote!);
-        // Get the new index from the store (Zustand updates synchronously)
+     
         const newIndex = useBallotStore.getState().currentBallotIndex;
         navigate(`/votes/${newIndex + 1}`);
         setIsDialogOpen(false)
@@ -270,28 +270,28 @@ export function Votes() {
             remove();
         } else {
             if (currentBallotIndex == 0) {
-                return // first ballot can't be removed
+                return 
             }
             setIsDialogOpen(true);
         }
     }
 
-    // <-- added: navigation handlers for next/previous
+    
     const handleNextVote = () => {
-        const nextIndex = currentBallotIndex + 2; // next ballot 1‑based
+        const nextIndex = currentBallotIndex + 2; 
         if (nextIndex <= ballots.length) {
             navigate(`/votes/${nextIndex}`);
         }
     };
 
     const handlePreviousVote = () => {
-        const prevIndex = currentBallotIndex; // currentBallotIndex is 0‑based, so 1‑based previous = currentBallotIndex
+        const prevIndex = currentBallotIndex; 
         if (prevIndex >= 1) {
             navigate(`/votes/${prevIndex}`);
         }
     };
 
-    // Hotkeys – updated to use the new handlers
+
     useHotkeys('1,2,3,4,5,6,7,8,9', (event) => {
         const index = parseInt(event.key) - 1;
         if (focusPosition && focusPosition.persons[index]) {
@@ -304,11 +304,11 @@ export function Votes() {
             toggleChecked(focusPosition, "invalid");
         }
     }, { enableOnFormTags: true })
-    useHotkeys("n", handleNextVote, { enableOnFormTags: true })                   // <-- changed
-    useHotkeys("ArrowUp", handlePreviousVote, { enableOnFormTags: true })         // <-- changed
+    useHotkeys("n", handleNextVote, { enableOnFormTags: true })                   
+    useHotkeys("ArrowUp", handlePreviousVote, { enableOnFormTags: true })       
     useHotkeys("ArrowDown", () => {
         if (currentBallotIndex !== ballots.length - 1) {
-            handleNextVote();                                                    // <-- changed
+            handleNextVote();                    
         }
     }, { enableOnFormTags: true })
     useHotkeys("ArrowLeft", focusPreviousPosition, { enableOnFormTags: true })
@@ -348,7 +348,7 @@ export function Votes() {
                                 aria-label="previous vote"
                                 tabIndex={500}
                                 disabled={currentBallotIndex == 0}
-                                onClick={handlePreviousVote}>           {/* <-- changed */}
+                                onClick={handlePreviousVote}>        
                                 <KeyboardArrowLeftIcon />
                             </Button>
                         </span>
@@ -405,7 +405,7 @@ export function Votes() {
                                 aria-label="next vote"
                                 onClick={handleNextVote}
                                 disabled={currentBallotIndex == ballots.length - 1}>
-                                {/* <-- changed */}
+                             
                                 <KeyboardArrowRightIcon />
                             </Button>
                         </span>
